@@ -13,7 +13,7 @@ const Searchbar = ({ valueSubmit }) => (
         evt.preventDefault();
         valueSubmit(prev => ({
           ...prev,
-          pictures: prev.pictures.splice(0, prev.pictures.length),
+          pictures: [],
         }));
         valueSubmit(prev => ({ ...prev, q: evt.target[1].value.trim() }));
         valueSubmit(prev => ({ ...prev, page: 1 }));
