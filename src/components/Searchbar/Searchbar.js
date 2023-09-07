@@ -8,19 +8,7 @@ const inputId = nanoid();
 
 const Searchbar = ({ valueSubmit }) => (
   <Header>
-    <Form
-      onSubmit={evt => {
-        evt.preventDefault();
-        valueSubmit(prev => ({
-          ...prev,
-          pictures: [],
-        }));
-        valueSubmit(prev => ({ ...prev, q: evt.target[1].value.trim() }));
-        valueSubmit(prev => ({ ...prev, page: 1 }));
-        valueSubmit(prev => ({ ...prev, showButton: false }));
-        valueSubmit(prev => ({ ...prev, isLoading: true }));
-      }}
-    >
+    <Form onSubmit={evt => valueSubmit(evt)}>
       <Button type="submit">
         <Span>Search</Span>
       </Button>

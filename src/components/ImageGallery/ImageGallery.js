@@ -4,23 +4,9 @@ import { PicturesList } from './ImageGalleryStyles.js';
 
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem.js';
 
-const ImageGallery = ({ viewModal, addListener, photos }) => (
+const ImageGallery = ({ viewModal, photos }) => (
   <>
-    <PicturesList
-      onClick={e => {
-        viewModal(prev => ({ ...prev, show: true }));
-        document.addEventListener('keydown', addListener);
-        let largeImage = photos.find(
-          photo => photo.webformatURL === e.target.src
-        ).largeImageURL;
-
-        let largeTags = photos.find(
-          photo => photo.webformatURL === e.target.src
-        ).tags;
-        viewModal(prev => ({ ...prev, largeImageURL: largeImage }));
-        viewModal(prev => ({ ...prev, tags: largeTags }));
-      }}
-    >
+    <PicturesList onClick={e => viewModal(e)}>
       {photos.map(photo => ImageGalleryItem(photo))}
     </PicturesList>
   </>
@@ -54,7 +40,6 @@ ImageGallery.propTypes = {
     })
   ),
   viewModal: PropTypes.func.isRequired,
-  addListener: PropTypes.func.isRequired,
 };
 
 export { ImageGallery };

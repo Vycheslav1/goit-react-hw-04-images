@@ -16,6 +16,9 @@ import { Loader } from 'components/Loader/Loader.js';
 
 import { getPicturesGallery } from 'api/search.js';
 
+let largeImage;
+let largeTags;
+
 const PicturesSearch = () => {
   const [data, setData] = useState({
     pictures: [],
@@ -24,8 +27,6 @@ const PicturesSearch = () => {
     show: false,
     showButton: false,
     isLoading: false,
-    largeImageURL: '',
-    tags: '',
   });
 
   useEffect(() => {
@@ -44,22 +45,64 @@ const PicturesSearch = () => {
         setData(prev => ({
           ...prev,
           pictures: [...prev.pictures, ...response.data.hits],
-        }));
-        setData(prev => ({
-          ...prev,
           showButton: pageNumber < Math.ceil(pictureLength / 12),
+          isLoading: false,
         }));
-
-        setData(prev => ({ ...prev, isLoading: false }));
       })
       .catch(error => {
         console.log(error);
       });
   }, [data.q, data.page]);
 
-  useEffect(() => {
-    document.removeEventListener('keydown', handleModalView);
-  }, [data.show]);
+  const handleSubmit = evt => {
+    evt.preventDefault();
+
+    setData(prev => ({
+      ...prev,
+      pictures: [],
+      q: evt.target[1].value.trim(),
+      page: 1,
+      showButton: false,
+      isLoading: true,
+    }));
+  };
+
+  const handleChangePage = e => {
+    setData(prev => ({
+      ...prev,
+      page: prev.page + 1,
+      showButton: false,
+      isLoading: true,
+    }));
+
+    window.scrollTo({
+      top: data.page * document.documentElement.clientHeight,
+      left: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  const showModal = e => {
+    setData(prev => ({
+      ...prev,
+      show: true,
+    }));
+
+    largeImage = data.pictures.find(
+      picture => picture.webformatURL === e.target.src
+    ).largeImageURL;
+
+    largeTags = data.pictures.find(
+      picture => picture.webformatURL === e.target.src
+    ).tags;
+  };
+
+  const showOverlay = () => {
+    setData(prev => ({
+      ...prev,
+      show: false,
+    }));
+  };
 
   const handleModalView = e => {
     if (e.key === 'Escape') {
@@ -69,22 +112,26 @@ const PicturesSearch = () => {
 
   return (
     <Div>
-      <Searchbar valueSubmit={setData} />
+      <Searchbar valueSubmit={handleSubmit} />
       {!data.isLoading ? (
-        <ImageGallery
-          viewModal={setData}
-          addListener={handleModalView}
-          photos={data.pictures}
-        />
+        <ImageGallery viewModal={showModal} photos={data.pictures} />
       ) : (
         <Loader />
       )}
-      {data.showButton && <Button changePage={setData} />}
+
+      {data.showButton && <Button changePage={handleChangePage} />}
+      {useEffect(() => {
+        if (data.show) {
+          document.addEventListener('keydown', handleModalView);
+        } else {
+          document.removeEventListener('keydown', handleModalView);
+        }
+      }, [data.show])}
       {data.show && (
         <Modal
-          hideModal={setData}
-          largeImageURL={data.largeImageURL}
-          title={data.tags}
+          hideModal={showOverlay}
+          largeImageURL={largeImage}
+          title={largeTags}
         />
       )}
     </Div>
